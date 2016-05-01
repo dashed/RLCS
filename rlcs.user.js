@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         RLC
 // @namespace    http://tampermonkey.net/
-// @version      3.1.0
+// @version      3.1.1
 // @description  Chat-like functionality for Reddit Live
 // @author       FatherDerp, Stjerneklar, thybag, mofosyne, jhon, 741456963789852123, MrSpicyWeiner, Concerned Hobbit (TheVarmari)
 // @include      https://www.reddit.com/live/*
@@ -23,13 +23,14 @@
 ____________________________________________________________________________________________________________________________________________________________________________*/
 
 	// set default states for options
-	if (!GM_getValue("rlc-NoSmileys")) {                GM_setValue("rlc-NoSmileys",                false);}
-	if (!GM_getValue("rlc-ChannelColors")) {            GM_setValue("rlc-ChannelColors",            true);}
-	if (!GM_getValue("rlc-AutoScroll")) {               GM_setValue("rlc-AutoScroll",               true);}
-	if (!GM_getValue("rlc-TextToSpeech")) {             GM_setValue("rlc-TextToSpeech",             false);}
-	if (!GM_getValue("rlc-RobinColors")) {              GM_setValue("rlc-RobinColors",              false);}
-	if (!GM_getValue("rlc-BackgroundAlternation")) { 	GM_setValue("rlc-BackgroundAlternation", 	false);}
-	if (!GM_getValue("rlc-DebugMode")) {                GM_setValue("rlc-DebugMode",                false);}
+	if (!GM_getValue("rlc-NoSmileys")) {                GM_setValue("rlc-NoSmileys",				false);	}
+	if (!GM_getValue("rlc-ChannelColors")) {            GM_setValue("rlc-ChannelColors", 			true);	}
+	if (!GM_getValue("rlc-AutoScroll")) {               GM_setValue("rlc-AutoScroll",				true);	}
+	if (!GM_getValue("rlc-TextToSpeech")) {             GM_setValue("rlc-TextToSpeech",				false);	}
+	if (!GM_getValue("rlc-TTS-SayName")) { 				GM_setValue("rlc-TTS-SayName", 				true);	}
+	if (!GM_getValue("rlc-RobinColors")) {              GM_setValue("rlc-RobinColors",				false);	}
+	if (!GM_getValue("rlc-BackgroundAlternation")) { 	GM_setValue("rlc-BackgroundAlternation",	false);	}
+	if (!GM_getValue("rlc-DebugMode")) {                GM_setValue("rlc-DebugMode",				false);	}
 
 	// Grab users username + play nice with RES
 	var robinUser = $("#header-bottom-right .user a").first().text().toLowerCase();
@@ -681,26 +682,30 @@ ________________________________________________________________________________
 				}
 				// Narration Style
 				var msg;
-				switch (true) {
-				case /.+\?$/.test(checkingStr): // Questioned
-					msg = new SpeechSynthesisUtterance(linetoread + " questioned " + $usr.text() + toneStr );
-					break;
-				case /.+\!$/.test(checkingStr):   // Exclaimed
-					msg = new SpeechSynthesisUtterance(linetoread + " exclaimed " + $usr.text() + toneStr );
-					break;
-				case /.+[\\\/]s$/.test(checkingStr): // Sarcasm switch checks for /s or \s at the end of a sentence
-					linetoread = linetoread.trim().slice(0, -2);
-					msg = new SpeechSynthesisUtterance(linetoread + " stated " + $usr.text() + "sarcastically");
-					break;
-				case checkingStr === checkingStr.toUpperCase(): //Check for screaming
-					msg = new SpeechSynthesisUtterance(linetoread + " shouted " + $usr.text() + toneStr );
-					break;
-				case meMentioned === 1: //Check for /me 
-					msg = new SpeechSynthesisUtterance( linetoread  + toneStr  );
-					break;
-				default: // said
-					msg = new SpeechSynthesisUtterance(linetoread + " said " + $usr.text() + toneStr );
-					break;
+				if (!$("body").hasClass("rlc-TTS-SayName")) {
+					msg = new SpeechSynthesisUtterance(linetoread + toneStr);
+				} else {
+					switch (true) {
+					case /.+\?$/.test(checkingStr): // Questioned
+						msg = new SpeechSynthesisUtterance(linetoread + " questioned " + $usr.text() + toneStr );
+						break;
+					case /.+\!$/.test(checkingStr):   // Exclaimed
+						msg = new SpeechSynthesisUtterance(linetoread + " exclaimed " + $usr.text() + toneStr );
+						break;
+					case /.+[\\\/]s$/.test(checkingStr): // Sarcasm switch checks for /s or \s at the end of a sentence
+						linetoread = linetoread.trim().slice(0, -2);
+						msg = new SpeechSynthesisUtterance(linetoread + " stated " + $usr.text() + "sarcastically");
+						break;
+					case checkingStr === checkingStr.toUpperCase(): //Check for screaming
+						msg = new SpeechSynthesisUtterance(linetoread + " shouted " + $usr.text() + toneStr );
+						break;
+					case meMentioned === 1: //Check for /me 
+						msg = new SpeechSynthesisUtterance(linetoread  + toneStr);
+						break;
+					default: // said
+						msg = new SpeechSynthesisUtterance(linetoread + " said " + $usr.text() + toneStr );
+						break;
+					}
 				}
 				RLClog("linetoread: "+linetoread);
 				// Now speak the sentence
@@ -1371,7 +1376,7 @@ ________________________________________________________________________________
 		createOption("Chrome Notifications", function(checked){
 			if (checked && Notification && !Notification.permission !== "granted"){
 				Notification.requestPermission();
-				if (checked){
+				if (checked) {
 					$("body").addClass("rlc-notificationchrome");
 				} else {
 					$("body").removeClass("rlc-notificationchrome");
@@ -1379,7 +1384,7 @@ ________________________________________________________________________________
 			}
 		},false);
 		createOption("Custom Scroll Bars", function(checked){
-			if (checked){
+			if (checked) {
 				$("body").addClass("rlc-customscrollbars");
 			} else {
 				$("body").removeClass("rlc-customscrollbars");
@@ -1387,14 +1392,14 @@ ________________________________________________________________________________
 			scollToBottom();
 		},false);
 		createOption("No Emotes", function(checked){
-			if (checked){
+			if (checked) {
 				$("body").addClass("rlc-noemotes");
 			} else {
 				$("body").removeClass("rlc-noemotes");
 			}
 		},false);
 		createOption("Text To Speech (TTS)", function(checked){
-			if (checked){
+			if (checked) {
 				$("body").addClass("rlc-TextToSpeech");
 			} else {
 				$("body").removeClass("rlc-TextToSpeech");
@@ -1402,21 +1407,28 @@ ________________________________________________________________________________
 			}
 		},false);
 		createOption("Disable User-based Voices", function(checked){
-			if (checked){
+			if (checked) {
 				$("body").addClass("rlc-NoUserVoices");
 			} else {
 				$("body").removeClass("rlc-NoUserVoices");
 			}
 		},false);
+		createOption("Disable TTS saying users' names", function(checked){
+			if (!checked) {
+				$("body").addClass("rlc-TTS-SayName");
+			} else {
+				$("body").removeClass("rlc-TTS-SayName");
+			}
+		},false);
 		createOption("Robin Colors", function(checked){
-			if (checked){
+			if (checked) {
 				$("body").addClass("rlc-RobinColors");
 			} else {
 				$("body").removeClass("rlc-RobinColors");
 			}
 		},false);
 		createOption("24-hour Timestamps", function(checked){
-			if (checked){
+			if (checked) {
 				$("body").addClass("rlc-24hrTimeStamps");
 			} else {
 				$("body").removeClass("rlc-24hrTimeStamps");
@@ -1430,7 +1442,7 @@ ________________________________________________________________________________
 			}
 		},false);
 		createOption("Debug Mode", function(checked){
-			if (checked){
+			if (checked) {
 				$("body").addClass("rlc-DebugMode");
 			} else {
 				$("body").removeClass("rlc-DebugMode");
