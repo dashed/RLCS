@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           RLC
-// @version        3.18.7
+// @version        3.18.6
 // @description    Chat-like functionality for Reddit Live
 // @author         FatherDerp & Stjerneklar
 // @contributor    thybag, mofosyne, jhon, FlamingObsidian, MrSpicyWeiner, TheVarmari, Kretenkobr2, dashed
@@ -173,7 +173,7 @@
         },false,"show counters for messages in tabs");
 
         createOption("12 Hour Mode", function(checked){
-       	},false,"12 Hour Time Stamps");
+        },false,"12 Hour Time Stamps");
 
         createOption("Hide Channels in Global", function(checked){
            if (loadHistoryMessageException != 1) {  refreshChat(); }
@@ -1296,16 +1296,16 @@ function stripTrailingSlash(str) {
                 //Getting minutes and seconds numbers from readAbleDate and prepends a 0 if the number is less than
                 var minutes = ((readAbleDate.getMinutes() < 10)? '0' : '') + readAbleDate.getMinutes() ;
                 if (GM_getValue("rlc-12HourMode")) {
-                	    //it is pm if hours from 12 onwards
-    					var suffix = (hours >= 12)? 'PM' : 'AM';
+                        //it is pm if hours from 12 onwards
+                        var suffix = (hours >= 12)? 'PM' : 'AM';
 
-    					//only -12 from hours if it is greater than 12 (if not back at mid night)
-    					hours = (hours > 12)? hours -12 : hours;
+                        //only -12 from hours if it is greater than 12 (if not back at mid night)
+                        hours = (hours > 12)? hours -12 : hours;
 
-    					//if 00 then it is 12 am
-    					hours = (hours === '00')? 12 : hours;
+                        //if 00 then it is 12 am
+                        hours = (hours === '00')? 12 : hours;
                 } else {
-                	suffix = "";
+                    suffix = "";
                 }
 
 
@@ -1399,23 +1399,23 @@ function getMessages(gettingOld) {
                     readAbleDate.setUTCSeconds(utcSeconds);
 
                     var hours = readAbleDate.getHours();
-                	var minutes = ((readAbleDate.getMinutes() < 10)? '0' : '') + readAbleDate.getMinutes() ;
+                    var minutes = ((readAbleDate.getMinutes() < 10)? '0' : '') + readAbleDate.getMinutes() ;
 
-                	if (GM_getValue("rlc-12HourMode")) {
-                	    	//it is pm if hours from 12 onwards
-    						var suffix = (hours >= 12)? 'PM' : 'AM';
+                    if (GM_getValue("rlc-12HourMode")) {
+                            //it is pm if hours from 12 onwards
+                            var suffix = (hours >= 12)? 'PM' : 'AM';
 
-    						//only -12 from hours if it is greater than 12 (if not back at mid night)
-    						hours = (hours > 12)? hours -12 : hours;
+                            //only -12 from hours if it is greater than 12 (if not back at mid night)
+                            hours = (hours > 12)? hours -12 : hours;
 
-    						//if 00 then it is 12 am
-    						hours = (hours === '00')? 12 : hours;
-                	} else {
-                		suffix = "";
-                	}
+                            //if 00 then it is 12 am
+                            hours = (hours === '00')? 12 : hours;
+                    } else {
+                        suffix = "";
+                    }
 
 
-                	var finaltimestamp = hours.toString() + ":" + minutes.toString() + " " + suffix;
+                    var finaltimestamp = hours.toString() + ":" + minutes.toString() + " " + suffix;
 
                     var fakeMessage = `
                     <li class="rlc-message" name="rlc-id-${msgID}">
@@ -1818,11 +1818,24 @@ function refreshChat() {  $(".rlc-message").remove(); getMessages();}
             }
             else if (e.keyCode === 40){
                 e.preventDefault();
-                if (messageHistoryIndex < messageHistory.length && messageHistory.length > 0){
-                    messageHistoryIndex++;
-                    $(this).val(messageHistory[messageHistoryIndex]);
+
+                if (!(messageHistory.length > 0 && messageHistoryIndex < messageHistory.length)) {
+                    return;
+                } 
+
+                messageHistoryIndex++;
+
+                $(this).val(messageHistoryIndex === messageHistory.length ? 
+                    lastTyped :
+                    messageHistory[messageHistoryIndex]
+                );
+
+            } else {
+
+                if (messageHistory.length > 0) {
+                    messageHistoryIndex = messageHistory.length;
                 }
-                if (messageHistoryIndex === messageHistory.length) $(this).val(lastTyped);
+
             }
         });
     }
@@ -2267,7 +2280,7 @@ div#rlc-settings label {
 
 header#liveupdate-header {
     margin: 0!important;
-    padding: 7px 15px;
+    padding: 15px
 }
 
 h1#liveupdate-title:before {
@@ -2277,8 +2290,7 @@ h1#liveupdate-title:before {
 h1#liveupdate-title {
     font-size: 1.5em;
     float: left;
-    padding: 0;
-    width:100%;
+    padding: 0
 }
 
 #rlc-header #liveupdate-statusbar {
@@ -2474,9 +2486,8 @@ li.rlc-message.in-channel .body .md {
 }
 
 #liveupdate-description {
-    float: left;
-width:100%;
-  
+    margin-left: 10px;
+    float: left
 }
 
 .noselect {
@@ -2987,7 +2998,7 @@ body.dark-background {
 body.rlc-customBg #rlc-wrapper {
     background-color: rgba(255,255,255,.1)!important
 }
-.rlc-customBg #rlc-main textarea{background:0 0}
+
 body.dark-background.rlc-customBg #rlc-wrapper {
     background-color: rgba(0,0,0,.1)!important
 }
@@ -3047,9 +3058,6 @@ body.dark-background.rlc-customBg #rlc-wrapper,body.dark-background.rlc-customBg
 
 .dark-background #rlc-channel-dropdown option {
     color: #000
-}
-div#rlc-update a {
-    color: inherit!important;
 }
     `);
 
